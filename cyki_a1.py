@@ -25,13 +25,14 @@ def CYK(string, grammar):
                 if string[letter] in grammar:
                     half_matrix[0].append(grammar[string[letter]])
                 else: #letter not in the alphabet - return fail
+                    print ('Context-Free Grammar G REJECTS the string :', string)
                     return False
 
         else: #superior levels
 
             for j in range(new_line_size):
                 half_matrix[-1].append([])
-                pairs = part_str(string[j:j+i])
+                pairs = part_str(string[j:j+i+1])
 
                 for pair in pairs:
                     line_1, line_2 = len(pair[0]), len(pair[1]) #height to look for
@@ -47,8 +48,12 @@ def CYK(string, grammar):
                             half_matrix[-1][-1] += grammar[rule]
 
     if 'S' in half_matrix[-1][0]:
-        print ('Context-Free Grammar G accepts the string :', string)
-    print ('\nParsing tree (possibilities): ',half_matrix)
+        print ('Context-Free Grammar G ACCEPTS the string :', string)
+    else:
+        print ('Context-Free Grammar G REJECTS the string :', string)
+
+    if len(string)<6:
+        print ('\nParsing tree (possibilities): ',half_matrix)
 
 
 
@@ -56,17 +61,31 @@ def CYK(string, grammar):
 '''test cases'''
 
 
-test_grammar = {    #generates L(a^+bb)
+test_grammar = {    #generates L(a^+b)
     'S':['AB'],
-    'A':['AA', 'AB', 'a'],
+    'A':['AA', 'a'],
     'B':['b']
 }
 
 test_grammar_inv = {    #pairs/terminals --> rules
-    'AB' : ['A', 'S'],
+    'AB' : ['S'],
     'AA' : ['A'],
     'a'  : ['A'],
     'b'  : ['B']
 }
 
-CYK('aaabb', test_grammar_inv)
+test_grammar_2 = { #already inverted. generates L(a^+b^+)
+    'AB' : ['S'],
+    'AA' : ['A'],
+    'BB' : ['B'],
+    'a'  : ['A'],
+    'b'  : ['B']
+}
+
+
+test_string = 'abb'
+
+while test_string != 'quit':
+    CYK(test_string, test_grammar_2)
+    test_string = input()
+    print()
