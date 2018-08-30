@@ -47,7 +47,7 @@ def CYK(string, grammar):
                             half_matrix[-1][-1] += grammar[rule]
 
     if 'S' in half_matrix[-1][0]:
-        print ('Context-Free Grammar G acepts the string :', string)
+        print ('Context-Free Grammar G accepts the string :', string)
     print ('\nParsing tree (possibilities): ',half_matrix)
 
 
