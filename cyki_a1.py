@@ -1,4 +1,4 @@
-'''CYK Algorithm. Determine wheter a string is in the set L(G),
+'''CYK Algorithm. Determine whether a string is in the set L(G),
 where G is a ctext-free grammar.
 obs: G must be in Chomskys Normal Form
 obs2: input grammar must be inverted, i.e. DERIVATION --> SYMBOL. Also, a dictionary.
