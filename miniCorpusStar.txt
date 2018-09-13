@@ -1,0 +1,11 @@
+PT ⛬PROP em ⛬PRP o ⛬DET governo ⛬N 
+Dimenstein ⛬PROP 
+Datafolha ⛬PROP publicada ⛬V hoje ⛬ADV revela ⛬V um ⛬DET dado ⛬N supreendente ⛬ADJ : ⛬PONT 
+recusando ⛬V uma ⛬DET postura ⛬N radical ⛬ADJ , ⛬PONT a ⛬DET esmagadora ⛬ADJ maioria ⛬N ( ⛬PONT 77 ⛬NUM % ⛬PONT ) ⛬PONT de ⛬PRP os ⛬DET eleitores ⛬N quer ⛬V o ⛬DET PT ⛬PROP participando ⛬V de ⛬PRP o ⛬DET Cardoso ⛬PROP . ⛬PONT 
+Tem ⛬V sentido ⛬V - ⛬PONT aliás ⛬ADV , ⛬PONT muitíssimo ⛬DET sentido ⛬N . ⛬PONT 
+Muito ⛬ADV mais ⛬ADV que ⛬KS em ⛬PRP os ⛬DET tempos ⛬N em ⛬PRP a ⛬DET ditadura ⛬N , ⛬PONT a ⛬DET solidez ⛬N de ⛬PRP o ⛬DET PT ⛬PROP está ⛬V , ⛬PONT agora ⛬ADV , ⛬PONT ameaçada ⛬V . ⛬PONT 
+Nem ⛬KC Lula ⛬PROP nem ⛬KC o ⛬DET partido ⛬N ainda ⛬ADV encontraram ⛬V um ⛬DET discurso ⛬N para ⛬PRP se ⛬PERS diferenciar ⛬V . ⛬PONT 
+Eles ⛬PERS se ⛬PERS dizem ⛬V oposição ⛬N , ⛬PONT mas ⛬KC ainda ⛬ADV não ⛬ADV informaram ⛬V o ⛬PERS que ⛬KS vão ⛬V combater ⛬V . ⛬PONT 
+Muitas ⛬DET de ⛬PRP as ⛬DET prioridades ⛬N de ⛬PRP o ⛬DET novo ⛬ADJ governo ⛬N coincidem ⛬V com ⛬PRP as ⛬DET prioridades ⛬N de ⛬PRP o ⛬DET PT ⛬PROP . ⛬PONT 
+" ⛬PONT Confissões ⛬N " ⛬PONT chega ⛬V a ⛬PRP Portugal ⛬PROP 
+Desde ⛬PRP o ⛬DET último ⛬ADJ dia ⛬N 13 ⛬NUM , ⛬PONT " ⛬PONT Adolescente ⛬PROP " ⛬PONT pode ⛬V ser ⛬V vista ⛬V por ⛬PRP os ⛬DET teens ⛬N portugueses ⛬ADJ . ⛬PONT 
