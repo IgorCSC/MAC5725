@@ -59,3 +59,5 @@ dev        = open('pequenoCorrigido.txt', 'r').readlines()
 '''funcoes'''
 print('HMM: ',nfoldValidation(dev, tags, 2, 2,'HMM'))
 print('common: ',nfoldValidation(dev, tags, 2,2, 'common'))
+
+#testeGIT
