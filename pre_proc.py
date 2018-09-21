@@ -217,5 +217,6 @@ def findProblems(corCorpus):
 
 '''testes'''
 if __name__ == '__main__':
+	#TESTE MUDANCAS GIT
 
 
