@@ -217,54 +217,6 @@ def findProblems(corCorpus):
 
 '''testes'''
 if __name__ == '__main__':
-
-    #folhona = open('CETENFolha-1.0_jan2014.cg', 'r')
-    #folinha = open('pqeno.cg', 'r').readlines()
-    #linesFolinha = folinha.readlines()
-    #linesFolin = folhona.readlines()
-
-    #smallClean = open('smallStar.txt', 'r')
-    #linesSmall = smallClean.readlines()
-
-    cetenClean = open('cetenLimpo.txt', 'r').readlines()
-    #cutCorpus(cetenClean)
-
-    dev, test = [], []
-    for line in cetenClean:
-        if random.SystemRandom().randint(0,100) > 20:
-            dev.append(line)
-        else:
-            test.append(line)
-
-    lt = likelyTag(dev)
-    print('lt feito')
-    print(tagAccuracy(test, lt))
-
-    #corpusToSentence(folinha)
-    #likely     = pickle.load(open('likelyTag', 'rb'))
-
-    #tagAccuracy(cetenClean, likely)
-    #counTag(cetenClean)
-    #likelyTag(cetenClean)
-    #linesClean = cetenClean.readlines()
-
-    #corpusToSentence(linesFolin)
-
-    #miniStar    = open('miniCorpusStar.txt', 'r')
-    #gigaStar     = open('cetenStar.txt', 'r')
-    #wordic = pickle.load(open('starPickle', 'rb'))
-    #tagAccuracy(miniStar, wordic)
-    #likelyTag(gigaStar)
-    #noEmptylines(gigaStar)
+	#TESTE MUDANCAS GIT
 
 
-    #si = 'PT em o governo'
-    #while si != 'quit':
-    #    si = input('sentenca: ')
-    #    maxTag(si, wordic)
-
-    #tagAccuracy(smallClean, likely)
-    #print(findProblems(gigaStar))
-    #countWords(gigaStar)
-
-    #twoFreq(corCorpus)
