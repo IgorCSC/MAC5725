@@ -4,6 +4,9 @@ import operator
 import random
 
 def listTags(corCorpus):
+    '''generate a list with all tags. input is the already clean corpus
+    '''
+
     l, tagList = [], open('tagList.txt', 'w')
     for line in corCorpus:
         splitSentence = line.split()
@@ -13,7 +16,11 @@ def listTags(corCorpus):
                 tagList.write(s+'\n')
 
 
-def corpusToSentence(corpus): #clean the corpus
+def corpusToSentence(corpus):
+    '''clean the corpus. Output is a file named by the user.
+    each line is a tagged sentence in the following format:
+    word1 ⛬TAG1 word2 ⛬TAG2
+    '''
 
     corpusName = input('Nome do arquivo do corpus de sentencas: ')
     newCorpus = open(corpusName+'.txt', 'w')
@@ -24,7 +31,7 @@ def corpusToSentence(corpus): #clean the corpus
 
 
     for line in corpus:
-        if line == '\n' and newSentence: #detecta fim de sentenca
+        if line == '\n' and newSentence: #detecs sentence end
             newCorpus.write('\n')
             newSentence = False          #avoid creating empty lines
 
@@ -44,14 +51,15 @@ def corpusToSentence(corpus): #clean the corpus
 
             try:
                 newCorpus.write(word.group()[:-1]+' ⛬'+tag.group()[1:-1]+' ')
-                #print(word.group(), tag.group())
             except:
                 pass
-                #print('No tag: ', line)
 
     newCorpus.close()
 
-def numTag(corCorpus): #count no of tags
+def numTag(corCorpus):
+    '''count no of tags
+    '''
+
     total = 0
     for line in corCorpus:
         words = line.split()
@@ -60,7 +68,10 @@ def numTag(corCorpus): #count no of tags
                 total += 1
     return total
 
-def counTag(corCorpus): #count no of tag occurrence
+def counTag(corCorpus):
+    '''count no of  occurence for each tag.
+    Output into a txt file, named by the user.
+    '''
 
     noTag = dict() #dictionary w tags as keys and no occurrence as value
 
@@ -84,18 +95,15 @@ def counTag(corCorpus): #count no of tag occurrence
 
 
 
-def likelyTag(corCorpus): #dic words ---> likely tag. For baseline only.
-
+def likelyTag(corCorpus):
+    '''generate a dictionary [words] ==> [likely tag].
+    '''
     wordDict = dict()
-    #likelyFile = open(input('Nome do pickle de saida: '), 'wb')
 
     for line in corCorpus:
         words = line.split()
 
-
-        #print (words)
         for n in range(0,len(words),2):
-            #print (n)
             if n+1 < len(words):
                 if words[n] in wordDict:
                     if words[n+1] in wordDict[words[n]]:
@@ -105,26 +113,30 @@ def likelyTag(corCorpus): #dic words ---> likely tag. For baseline only.
                 else:
                     wordDict[words[n]] = {words[n+1] : 1}
 
-
-    #print (wordDict)
     for word in wordDict:
         wordDict[word] = max(wordDict[word].items(), key=operator.itemgetter(1))[0]
-    #print(wordDict)
-    #pickle.dump(wordDict, likelyFile)
+
     return (wordDict)
 
 
-def cutCorpus(corCorpus): #make small file for testing
+def cutCorpus(corCorpus, n=10000):
+    '''cut the corpus into a small file for testing stuff.
+    saves it into a file named smallCorpus.
+    '''
 
-    newCorpus = open('pequenoCorrigido.txt', 'w')
+    newCorpus = open('smallCorpus.txt', 'w')
 
-    for i in range(10000):
+    for i in range(n):
         newCorpus.write(corCorpus[i])
 
     newCorpus.close()
 
 
-def maxTag(sentence, commonDictionary): #pick a sentence. return list of tags:
+def maxTag(sentence, commonDictionary):
+    '''Tag a sentence with most likely tag method.
+    commonDictionary == dictionary [word] ==> most likely tag.
+    '''
+
 
     newSentence = sentence.split()
     tagged      = []
@@ -139,8 +151,11 @@ def maxTag(sentence, commonDictionary): #pick a sentence. return list of tags:
     return(tagged)
 
 
+def tagAccuracy(corCorpus, commonDictionary):
+    '''tag sentences with commonest tag. Calculate the percentage of correct tags.
+    commonDictionary == dictionary [word] ==> most likely tag.
+    '''
 
-def tagAccuracy(corCorpus, commonDictionary): #tag sentences. calc. the percentage of correct tagsself.
     correct, total = 0,0
 
     for line in corCorpus:
@@ -159,7 +174,6 @@ def tagAccuracy(corCorpus, commonDictionary): #tag sentences. calc. the percenta
             if correctTags[w] == tagged[w]:
                 correct += 1
 
-    #print (correct, total, correct/total)
     return (correct/total)
 
 def countWords(corCorpus):
@@ -217,6 +231,5 @@ def findProblems(corCorpus):
 
 '''testes'''
 if __name__ == '__main__':
-	#TESTE MUDANCAS GIT
 
-
+    pass
