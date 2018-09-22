@@ -3,97 +3,62 @@ import pickle
 import operator
 import random
 
-def sliceCorpus(corCorpus): #slice corpus into 80-20 for dev + test
-    dev, test = [], []#open('dev', 'w'), open('test', 'w')
-
-    for line in corCorpus:
-        if random.SystemRandom().randint(0,100) > 20:
-            dev.append(line)
-            #dev.write(line+'\n')
-        else:
-            test.append(line)
-            #test.write(line+'\n')
-    return(dev, test)
-
-def trainTest(dev, test, tagList): #train the HMM model and then test it
-
-    pairs  = twoFreq(dev, tagList)
-    words = wordFreq(dev, tagList)
-
-    return (HMMaccuracy(test, tagList, pairs, words))
-
-
-
-def nfoldValidation(corCorpus, tagList, n=10): #checar sintaxe
-
-        totalAccuracy = 0
-
-        for i in range(n):
-            sliced = sliceCorpus(corCorpus)
-            dev, test = sliced[0], sliced[1]
-
-            print('LEN',len(dev),len(test))
-
-            totalAccuracy += trainTest(dev, test, tagList)
-
-        return (totalAccuracy/n)
-
-
-
-
-def twoFreq(corCorpus, allTags): #measure probabilities of, given a pair [a,b] of POS Tags, an observation of C. Input also the tag list.
+def twoFreq(corCorpus, allTags):
+    '''measure probabilities of, given a pair [a,b] of POS Tags, an observation of C.
+    allTags = list of tags
+    '''
 
     freqTable = {'zero': {}}
     regexTag  = '⛬\w*\s'
 
     tagSize = len(allTags) #needed for laplacian smoothing
 
-    allPairs = ['zero'] #generate a list with all possible combinations of two tags
+    allPairs = [] #generate a list with all possible combinations of two tags
     for t in allTags:
-        freqTable['zero'][t[:-1]] = 1
-        first = t[:-1]     #for second word. TAG1 ---> TAG2
-        allPairs.append(first)
         for l in allTags:
-            allPairs.append(t[:-1]+l[:-1])
+            allPairs.append(t+'_'+l)
+
+
 
     for pair in allPairs:                   #create entry for a particular pair
         freqTable[pair] = dict()
         for tag in allTags:
-            freqTable[pair][tag[:-1]] = 1
+            freqTable[pair][tag] = 1
 
     for line in corCorpus:
-        sentenceTags = re.findall(regexTag, line) #ordered list containing POSTAGS.
+
+        sentenceRegex, sentenceTags = re.findall(regexTag, line), [] #ordered list containing POSTAGS.
+        for mk in sentenceRegex:
+            sentenceTags.append(mk[1:-1])
 
         for t in range(len(sentenceTags)):
-            tag  = sentenceTags[t][:-1]
-            if t == 0:                       #first tag
-                if tag in freqTable['zero']:
-                    freqTable['zero'][tag] += 1
-            elif t == 1:                     #second tag
-                if tag in freqTable[sentenceTags[0][:-1]]:
-                    freqTable[sentenceTags[0][:-1]][tag] += 1
-            else:
-                dualTag = sentenceTags[t-2][:-1]+sentenceTags[t-1][:-1]
+            tag  = sentenceTags[t]
+            if t == 0:                       #FIRST TAG
+                if tag in freqTable['*_*']:
+                    freqTable['*_*'][tag] += 1
+            elif t == 1:                     #SECOND TAG
+                if tag in freqTable['*_'+sentenceTags[0]]:
+                    freqTable['*_'+tag][tag] += 1
+            else:                            #OTHER TAGS
+                dualTag = sentenceTags[t-2]+'_'+sentenceTags[t-1]
                 freqTable[dualTag][tag] += 1
 
-
-    ##Convert to probabilities
-    for pair in allPairs:#freqTable:
+    '''Convert count to probabilities'''
+    for pair in allPairs:
 
         total = 0
 
         for tag in freqTable[pair]:
-            #print('PAR: ',pair,'TAG: ', tag[:-1])
             total += freqTable[pair][tag]
         for tag in freqTable[pair]:
             freqTable[pair][tag] = freqTable[pair][tag] / total
 
-    #for tag in allTags:
-    #    print(freqTable)
-    #    print(freqTable[tag[:-1]])
     return (freqTable)
 
-def untagSentence(sentence):  #input is a tagged sentence. Returns a 2-ple of strings, the sentence itself and the tags.
+def untagSentence(sentence):
+    '''input is a tagged sentence. Returns a 2-ple of strings, the sentence itself and the tags.
+    '''
+
     result, tags, splitSentence = '', [], sentence.split()
     for word in splitSentence:
         if word[0] != '⛬':
@@ -102,124 +67,130 @@ def untagSentence(sentence):  #input is a tagged sentence. Returns a 2-ple of st
             tags.append(word)
     return(result, tags)
 
-def wordFreq(corCorpus, tagList): #generates a dictionary with P(word|tag) statistics
+def wordFreq(corCorpus, tagList):
+    '''generates a dictionary with P(word|tag) probabilities
+    '''
 
-    #pickleName = input('Nome do arquivo Pickle: ')
     tagtoWord = dict()
     for tag in tagList:
-        tagtoWord[tag[:-1]] = {}
+        tagtoWord[tag] = {}
 
     regex_tagword = '[^⛬]+\s⛬[A-Z]+'
-    #regex_tagword = '\w*[,".:\%$´\\\\ |\'±=\`\&-;!?()\[\]]*\s⛬[A-Z]+'  ###Tive que por a pontuacao na mao! talvez tenha mais. CHECAR!
 
     for sentence in corCorpus: #split sentence into strings with word+tag
         tagwords = re.findall(regex_tagword, sentence)
-        #print(tagwords)
 
         for t in tagwords: #split string with word+tag into list [word, tag]
-            #print(sentence)
-            #print(t.split())
             if len(t.split()) == 2:
-                word, tag = t.split()[0], t.split()[1]
-
-
+                word, tag = t.split()[0], t.split()[1][1:]
                 if tag in tagtoWord: ### so para testes. Depois tirar quando relimpar o corpus.
                     if word in tagtoWord[tag]:
                         tagtoWord[tag][word] += 1
                     else:
                         tagtoWord[tag][word]  = 1
 
-    #print(tagtoWord)
-
-    # Convert to probabilities
-
+    '''Convert to probabilities'''
     for tag in tagList:
         total = 0
-        for word in tagtoWord[tag[:-1]]:
-            total += tagtoWord[tag[:-1]][word]
+        for word in tagtoWord[tag]:
+            total += tagtoWord[tag][word]
 
-        for word in tagtoWord[tag[:-1]]:
-            tagtoWord[tag[:-1]][word] = tagtoWord[tag[:-1]][word]/total
+        for word in tagtoWord[tag]:
+            tagtoWord[tag][word] = tagtoWord[tag][word]/total
 
-    #print (tagtoWord)
-    #pickle.dump(tagtoWord,open(pickleName, 'wb'))
     return (tagtoWord)
 
 def tagSentence(splitSentence, tagList):
+    '''tag a sentence with a given ordered list of tags
+    '''
+
     result = ''
     if len(splitSentence) == len(tagList):
         for i in range(len(splitSentence)):
             result += splitSentence[i]+' '+tagList[i]+' '
     else:
-        print('erro')
+        print('Error. Number of tags =/= number of tokens.')
 
     return result
 
 
 
-def viterbiD(sentence, tagList, twoTagDic, tagWord):
-
-    #ainda está incompleto
-    #tags precisam estar corretas - comando tag.strip()
+def viterbi(sentence, tagList, twoTagDic, tagWord):
+    ''' viterbi algorithm for POS tagging
+    sentence == string; twoTagDic == dictionary [tag1][tag2] ==> p([tag3])
+    tagWord == dictionary [tag] == > p([word])
+    '''
 
     viterbiScores, backpointersMatrix = [{}], [{}]
     splitSentence = sentence.split()
 
-    #initialization
-    viterbiScores[0]['**'] = 1
+    '''initialization'''
+
     backpointersMatrix[0]['*_*'] = 'inicio'
+
+    for tagu in tagList:
+        for tagd in tagList:
+            pair = tagu+'_'+tagd
+            #print(pair)
+            viterbiScores[0][pair] = 0
+
+    viterbiScores[0]['*_*'] = 1
 
     for k in range(1,len(splitSentence)+1):
 
-        verbiScores.append({})
+        viterbiScores.append({})
         backpointersMatrix.append({})
 
         for tagu in tagList:
             for tagd in tagList:
-
+                tagPair = tagu+'_'+tagd
                 allValues = []
-                for tagt tagList:
-                    allValues.append( [viterbiScores[k-1][tagt+tagu]*twoTagDic[tagt+tagu], tagt] )
+                for tagt in tagList:
+                    allValues.append( [viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd], tagt] )
                 bestScore, bestTag = max(allValues)[0], max(allValues)[1]
+
                 try:
-                    viterbiScores[k][tagu+tagd] = bestScore * tagWord[tagd][splitSentence[k-1]]
-                except:
-                    viterbiScores[k][tagu+tagd] = 0
-                backpointersMatrix[k][tagu+'_'+tagd] = bestTag
+                    viterbiScores[k][tagPair] = bestScore * tagWord[tagd][splitSentence[k-1]]
+                except:                  #P(word|tag)==0
+                    viterbiScores[k][tagPair] = 0
+                backpointersMatrix[k][tagPair] = bestTag
 
-    #end
+    '''terminate'''
     allValues, tagged = [], []
+
     for tagu in tagList:
-        for tagd in Taglist:
-            allValues.append([viterbiScores[len(splitSentence+1)][tagu+tagd], backpointersMatrix[len(splitSentence)-1][tagu+tagd] ])
-    t = max(allValues)[1]
-    for i in range(len(splitSentence),2,-1):
-        tagged.append(t)
-        t = backpointersMatrix[i][]
+        for tagd in tagList:
+            pair = tagu+'_'+tagd
+            allValues.append([viterbiScores[len(splitSentence)][pair], pair ])
+    finalPair = max(allValues)[1]
+    lastWord, penulWord  = re.search('_.*', finalPair).group()[1:], re.search('.*_', finalPair).group()[:-1]
 
+    for i in range(len(splitSentence),0,-1):
+        tagged.insert(0,lastWord)
+        secondWord = backpointersMatrix[i][finalPair]
+        lastWord   = re.search('.*_', finalPair).group()[:-1]
+        finalPair = secondWord+'_'+secondWord
 
-
-
-
-
+    return(tagged)
 
 
 def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
+    '''measure the accuracy of the HMM  (no of correct tags)
+    twoFreq  == dictionary [tag1][tag2] ==> p([tag3])
+    wordFreq == dictionary [tag] ==> p([word])
+    '''
+
     total, correct = 0,0
 
-
     for i in range(len(corpus)):
-
-        #if i%1000 == 0:
-        #    print(i)
         s = corpus[i]
-        untag, comp = untagSentence(s)[0], untagSentence(s)[1]
-        #print(len(untag.split()))
-        if len(untag.split())>9:
-            #print (len(corpus[i]))
+        untag, comp_comstar = untagSentence(s)[0], untagSentence(s)[1]
+        comp = []
+        for c in comp_comstar:
+            comp.append(c[1:])
 
+        if len(untag.split())>0:
 
-            #untag, comp = untagSentence(s)[0], untagSentence(s)[1]
             vit = viterbi(untag, tagList, twoFreq, wordFreq)
             for t in range(len(comp)):
                 total += 1
@@ -228,8 +199,7 @@ def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
                         correct += 1
                 except:
                     print('problema: ', vit, comp, t)
-                #else:
-                #    print(vit[t],comp[t], untag.split()[t])
+
     print (correct/total)
     return (correct/total)
 
@@ -238,16 +208,4 @@ def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
 
 if __name__ == '__main__':
     import pre_proc as pp
-
-    dev        = open('pequenoCorrigido.txt', 'r').readlines()
-    tags = open('tags', 'r').readlines()
-    #common = pp.likelyTag(dev)
-    pairs = twoFreq(dev, tags)
-    word  = wordFreq(dev, tags)
-
-
-    sentence = 'Tem ⛬V sentido ⛬V - ⛬PONT aliás ⛬ADV , ⛬PONT muitíssimo ⛬DET sentido ⛬N . ⛬PONT '
-    sent, correctTags = untagSentence(sentence)[0], untagSentence(sentence)[1]
-    print(sent)
-    print(correctTags)
-    viterbiD(sent, tags, pairs, word)
+    pass

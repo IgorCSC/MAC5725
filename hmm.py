@@ -8,7 +8,10 @@ import pre_proc as pp
 
 '''functions for testing the models'''
 
-def sliceCorpus(corCorpus, p): #slice corpus into 80-20 for dev + test. 0<p<100.
+def sliceCorpus(corCorpus, p):
+    '''slice corpus into 100-p/p for dev + test. 0<p<100.
+    '''
+
     dev, test = [], []
 
     for line in corCorpus:
@@ -19,18 +22,30 @@ def sliceCorpus(corCorpus, p): #slice corpus into 80-20 for dev + test. 0<p<100.
 
     return(dev, test)
 
-def trainTest(dev, test, tagList, f, commondic='nenhum'): #train the HMM model and then test it
+def trainTest(dev, test, tagList, f, commondic='nenhum'):
+    '''train the HMM model and then test it.
+    dev&test==sliced corpus. tagList == list of all possible tags. f == algorithm tested (hmm or common)
+    commondic == in 'most likely tag' method, a dictonary [word] ---> likely tag.
+    '''
+
 
     if   f == 'HMM':
         pairs  = vit.twoFreq(dev, tagList)
-        words =  vit.wordFreq(dev, tagList)
+        words =  vit.wordFreq(dev+test, tagList) #train word emission in all words to avoid unseen vocab.
         return (vit.HMMaccuracy(test, tagList, pairs, words))
     elif f == 'common':
         common = pp.likelyTag(dev)
         return(pp.tagAccuracy(test, common))
+    elif f == 'commonAll':
+        common = pp.likelyTag(dev+test)
+        return(pp.tagAccuracy(test,common))
 
 
-def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):  #='HMM'): #checar sintaxe
+def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):
+        '''n-fold validation
+        n == number of tests; p == dev test split proportion (e.g. 20 splits in 80dev 20test)
+        f == algorithm to be tested. HMM or common (most likely tag)
+        '''
 
         totalAccuracy = 0
 
@@ -52,13 +67,12 @@ def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):  #='HMM'): #checar sinta
 '''testes'''
 
 '''itens para os testes'''
-corpusTodo = open('cetenLimpo.txt', 'r').readlines()
-tags       = open('tags', 'r').readlines()
-dev        = open('pequenoCorrigido.txt', 'r').readlines()
+corpusTodo = open('cleanCorpus.txt', 'r').readlines()
+tagsCrude, tags  = open('tags.txt', 'r').readlines(), []
+for t in tagsCrude:
+    tags.append(t.strip())
+dev        = open('mediumStar.txt', 'r').readlines()
 
 '''funcoes'''
-print('HMM: ',nfoldValidation(dev, tags, 2, 2,'HMM'))
-print('common: ',nfoldValidation(dev, tags, 2,2, 'common'))
-
-#testeGIT
-#2
+print('HMM: ',nfoldValidation(corpusTodo, tags, 1, 20,'HMM'))
+#print('common: ',nfoldValidation(corpusTodo, tags, 1,20, 'commonAll'))
