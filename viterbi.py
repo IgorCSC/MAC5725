@@ -131,7 +131,6 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
     for tagu in tagList:
         for tagd in tagList:
             pair = tagu+'_'+tagd
-            #print(pair)
             viterbiScores[0][pair] = 0
 
     viterbiScores[0]['*_*'] = 1
@@ -144,10 +143,11 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
         for tagu in tagList:
             for tagd in tagList:
                 tagPair = tagu+'_'+tagd
-                allValues = []
+
+                bestScore, bestTag = 0, None
                 for tagt in tagList:
-                    allValues.append( [viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd], tagt] )
-                bestScore, bestTag = max(allValues)[0], max(allValues)[1]
+                    if viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd] > bestScore:
+                        bestScore, bestTag = viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd], tagt
 
                 try:
                     viterbiScores[k][tagPair] = bestScore * tagWord[tagd][splitSentence[k-1]]
@@ -156,14 +156,18 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
                 backpointersMatrix[k][tagPair] = bestTag
 
     '''terminate'''
-    allValues, tagged = [], []
+
+    value, finalPair = 0, None
 
     for tagu in tagList:
         for tagd in tagList:
             pair = tagu+'_'+tagd
-            allValues.append([viterbiScores[len(splitSentence)][pair], pair ])
-    finalPair = max(allValues)[1]
+            if viterbiScores[len(splitSentence)][pair] > value:
+                value, finalPair = viterbiScores[len(splitSentence)][pair], pair
+
     lastWord, penulWord  = re.search('_.*', finalPair).group()[1:], re.search('.*_', finalPair).group()[:-1]
+
+    tagged = []
 
     for i in range(len(splitSentence),0,-1):
         tagged.insert(0,lastWord)
@@ -181,6 +185,7 @@ def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
     '''
 
     total, correct = 0,0
+    broken         = 0   #store number of errors, i.e. missing tags or incomplete sentences
 
     for i in range(len(corpus)):
         s = corpus[i]
@@ -198,9 +203,10 @@ def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
                     if vit[t] == comp[t]:
                         correct += 1
                 except:
-                    print('problema: ', vit, comp, t)
+                    print('Broken sentence: ', vit, comp, t)
+                    broken +=1
 
-    print (correct/total)
+    print('%d broken sentences' % broken)
     return (correct/total)
 
 

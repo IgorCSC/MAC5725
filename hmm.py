@@ -2,9 +2,33 @@ import re
 import pickle
 import operator
 import random
+import time
+import argparse
 
 import viterbi as vit
 import pre_proc as pp
+
+'''input parser'''
+parser = argparse.ArgumentParser(
+    description='Example with nonoptional arguments',
+)
+
+parser.add_argument('corpus', action="store", nargs='?', type=str, default='cleanCorpus.txt')
+parser.add_argument('method', action="store", nargs='?', type=str, default='HMM')
+parser.add_argument('split', action="store", nargs='?', type=int, default=20)
+parser.add_argument('nfold', action="store", nargs='?', type=int, default=1)
+
+args = parser.parse_args()
+
+if args.method not in ['HMM', 'common', 'commonAll']:
+    print('Invalid method. Please choose one of the following: hmm, common, commonAll.')
+    quit()
+if args.split < 0 or args.split > 100:
+    print('Invalid split size. Please chosse 0 < n < 100.')
+    quit()
+
+
+
 
 '''functions for testing the models'''
 
@@ -47,32 +71,47 @@ def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):
         f == algorithm to be tested. HMM or common (most likely tag)
         '''
 
+        theStart = time.perf_counter() #timer to track the entire nfold
+
         totalAccuracy = 0
 
         for i in range(n):
+
+            startTime = time.perf_counter()
+            print('\niteration %d ' % (i+1))
+
             sliced = sliceCorpus(corCorpus, p)
             dev, test = sliced[0], sliced[1]
 
-            print('LEN',len(dev),len(test))
+            print('Training time', time.perf_counter()-startTime)
+            #print('Training time = %d seconds' % (time.perf_counter()-startTime))
+            print('Corpus` size: %d sentences in DEV and %d sentences in TEST. ' % (len(dev),len(test)))
+            startTime = time.perf_counter()
+            itAccuracy = trainTest(dev, test, tagList, f)
+            totalAccuracy += itAccuracy
+            print('Evaluation time =', time.perf_counter()-startTime)
+            print('Iteration accuracy:', itAccuracy)
 
-            totalAccuracy += trainTest(dev, test, tagList, f)
+        print('\nTotal time = {0} minutes'.format((time.perf_counter()-theStart)/60))
+
 
         return (totalAccuracy/n)
 
 
 
-
+'''main routine'''
 
 
 '''testes'''
 
 '''itens para os testes'''
-corpusTodo = open('cleanCorpus.txt', 'r').readlines()
+#corpusTodo = open('cleanCorpus.txt', 'r').readlines()
 tagsCrude, tags  = open('tags.txt', 'r').readlines(), []
 for t in tagsCrude:
     tags.append(t.strip())
-dev        = open('mediumStar.txt', 'r').readlines()
+#dev        = open('mediumStar.txt', 'r').readlines()
+corpus     = open(args.corpus, 'r').readlines()
 
 '''funcoes'''
-print('HMM: ',nfoldValidation(corpusTodo, tags, 1, 20,'HMM'))
+print('\n%s accuracy in %d excecutions is:' % (args.method, args.nfold),nfoldValidation(corpus, tags, args.nfold, args.split, args.method))
 #print('common: ',nfoldValidation(corpusTodo, tags, 1,20, 'commonAll'))
