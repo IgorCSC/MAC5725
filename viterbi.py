@@ -165,7 +165,11 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
             if viterbiScores[len(splitSentence)][pair] > value:
                 value, finalPair = viterbiScores[len(splitSentence)][pair], pair
 
-    lastWord, penulWord  = re.search('_.*', finalPair).group()[1:], re.search('.*_', finalPair).group()[:-1]
+    if finalPair != None:
+        lastWord, penulWord  = re.search('_.*', finalPair).group()[1:], re.search('.*_', finalPair).group()[:-1]
+    else:
+        print('Error')
+        return([])
 
     tagged = []
 
