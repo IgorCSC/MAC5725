@@ -181,6 +181,46 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
 
     return(tagged)
 
+def HMMaccuracySentence(corpus, tagList, twoFreq, wordFreq):
+    '''measure the accuracy of the HMM  (no of correct tags)
+    twoFreq  == dictionary [tag1][tag2] ==> p([tag3])
+    wordFreq == dictionary [tag] ==> p([word])
+    '''
+
+    total, correct = 0, 0
+    broken         = 0
+
+    for i in range(len(corpus)):
+
+        control = True
+        total += 1
+
+        s = corpus[i]
+        untag, comp_comstar = untagSentence(s)[0], untagSentence(s)[1]
+        comp = []
+        for c in comp_comstar:
+            comp.append(c[1:])
+
+        if len(untag.split())>0:
+
+            vit = viterbi(untag, tagList, twoFreq, wordFreq)
+            for t in range(len(comp)):
+                try:
+                    if vit[t] != comp[t]:
+                        control = False
+                except:
+                    print('Broken sentence: ', vit, comp, t)
+                    broken +=1
+
+        if control:
+            correct += 1
+        #else:
+        #    print('Incorrect tagging')
+        #    print(comp)
+        #    print(vit)
+
+    print('%d broken sentences' % broken)
+    return (correct/total)
 
 def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
     '''measure the accuracy of the HMM  (no of correct tags)
@@ -217,5 +257,14 @@ def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
 '''testes'''
 
 if __name__ == '__main__':
-    import pre_proc as pp
-    pass
+
+    tagsCrude, tags  = open('tags.txt', 'r').readlines(), []
+    for t in tagsCrude:
+        tags.append(t.strip())
+
+    corpus = open('smallCorpus.txt', 'r').readlines()
+
+    pairs  = twoFreq(corpus, tags)
+    words =  wordFreq(corpus, tags)
+
+    print(HMMaccuracy(corpus, tags, pairs, words))
