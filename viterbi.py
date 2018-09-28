@@ -2,6 +2,7 @@ import re
 import pickle
 import operator
 import random
+from math import log as log
 
 def twoFreq(corCorpus, allTags):
     '''measure probabilities of, given a pair [a,b] of POS Tags, an observation of C.
@@ -133,7 +134,7 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
             pair = tagu+'_'+tagd
             viterbiScores[0][pair] = 0
 
-    viterbiScores[0]['*_*'] = 1
+    viterbiScores[0]['*_*'] = 0
 
     for k in range(1,len(splitSentence)+1):
 
@@ -144,24 +145,27 @@ def viterbi(sentence, tagList, twoTagDic, tagWord):
             for tagd in tagList:
                 tagPair = tagu+'_'+tagd
 
-                bestScore, bestTag = 0, None
+                bestScore, bestTag = -float('inf'), None
                 for tagt in tagList:
-                    if viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd] > bestScore:
-                        bestScore, bestTag = viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd], tagt
-
+                    testValue = log(twoTagDic[tagt+'_'+tagu][tagd])
+                    if viterbiScores[k-1][tagt+'_'+tagu]+testValue > bestScore:
+                        #bestScore, bestTag = viterbiScores[k-1][tagt+'_'+tagu]*twoTagDic[tagt+'_'+tagu][tagd], tagt
+                        bestScore, bestTag = viterbiScores[k-1][tagt+'_'+tagu]+testValue, tagt
                 try:
-                    viterbiScores[k][tagPair] = bestScore * tagWord[tagd][splitSentence[k-1]]
+                    viterbiScores[k][tagPair] = bestScore + log(tagWord[tagd][splitSentence[k-1]])
                 except:                  #P(word|tag)==0
-                    viterbiScores[k][tagPair] = 0
+                    viterbiScores[k][tagPair] = -float('inf')
                 backpointersMatrix[k][tagPair] = bestTag
 
     '''terminate'''
 
-    value, finalPair = 0, None
+    value, finalPair = -float('inf'), None
 
     for tagu in tagList:
         for tagd in tagList:
             pair = tagu+'_'+tagd
+
+            #print(viterbiScores[len(splitSentence)][pair])
             if viterbiScores[len(splitSentence)][pair] > value:
                 value, finalPair = viterbiScores[len(splitSentence)][pair], pair
 
@@ -247,7 +251,6 @@ def HMMaccuracy(corpus, tagList, twoFreq, wordFreq):
                     if vit[t] == comp[t]:
                         correct += 1
                 except:
-                    print('Broken sentence: ', vit, comp, t)
                     broken +=1
 
     print('%d broken sentences' % broken)
@@ -262,9 +265,18 @@ if __name__ == '__main__':
     for t in tagsCrude:
         tags.append(t.strip())
 
-    corpus = open('smallCorpus.txt', 'r').readlines()
+    corpus = open('mediumStar.txt', 'r').readlines()
 
     pairs  = twoFreq(corpus, tags)
     words =  wordFreq(corpus, tags)
 
+
+
+    s = '" ⛬PONT Kika ⛬PROP " ⛬PONT , ⛬PONT de ⛬PRP Almodóvar ⛬PROP , ⛬PONT " ⛬PONT O=Sonho=Azul ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET chinês ⛬N Tian=Zhuangzhuang ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT A=Fraternidade=É=Vermelha ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Krzystof=Kieslowski ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Amateur ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET americano ⛬N Hal=Hartley ⛬PROP , ⛬PONT com ⛬PRP Isabelle=Huppert ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Tempo=de=Viver ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET chinês ⛬N Zhang=Yimou ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Leni=Riefenstahl:=A=Deusa=Imperfeita ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET alemão ⛬N Ray=Mueller ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Xeque-Mate ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Jim ⛬PROP McBride ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT 32=Variações=Sobre=Glenn=Gould ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET canadense ⛬ADJ François=Girard ⛬PROP ) ⛬PONT , ⛬PONT o ⛬DET hilariante ⛬ADJ " ⛬PONT Mamãe=É=de=Morte ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET americano ⛬N John=Waters ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT A=Rainha=Margot ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET francês ⛬N Patrice=Chéreau ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Kabloonak ⛬PROP " ⛬PONT ( ⛬PONT ficção ⛬N sobre ⛬PRP as ⛬DET filmagens ⛬N de ⛬PRP o ⛬DET clássico ⛬ADJ documentário ⛬N de ⛬PRP Robert=Flaherty ⛬PROP , ⛬PONT " ⛬PONT Nanook,=o=Esquimó ⛬PROP " ⛬PONT , ⛬PONT dirigida ⛬V por ⛬PRP o ⛬DET francês ⛬N Claude=Massot ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Comer=Beber=Viver ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Ang ⛬PROP " ⛬PONT O=Banquete=de=Casamento=Lee ⛬PROP " ⛬PONT ) ⛬PONT , ⛬PONT " ⛬PONT A=Bronx=Tale ⛬PROP " ⛬PONT ( ⛬PONT primeiro ⛬ADJ filme ⛬N dirigido ⛬V por ⛬PRP Robert=De=Niro ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Barriga=de=Aluguel ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP a ⛬DET húngara ⛬N Marta=Meszaros ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Tigrero ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET finlandês ⛬N Mika=Kaurismaki ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Prince=of=Jutland ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET dinamarquês ⛬N Gabriel=Axel ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT The=Adventures=of=Priscilla ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Stephen=Elliot ⛬PROP ) ⛬PONT e ⛬KC " ⛬PONT Kosh=ba=Kosh ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET tadjique ⛬N B.=Khudoynazarov ⛬PROP ) ⛬PONT . ⛬PONT '
+
+
+    unt, tagged = untagSentence(s)
+    print(unt.split(),'\n', tagged)
+
+    #print(viterbi(unt, tags, pairs, words))
     print(HMMaccuracy(corpus, tags, pairs, words))

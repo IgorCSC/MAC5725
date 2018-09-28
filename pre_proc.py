@@ -93,8 +93,6 @@ def counTag(corCorpus):
         newFile.write('\n')
     newFile.close()
 
-
-
 def likelyTag(corCorpus):
     '''generate a dictionary [words] ==> [likely tag].
     '''
@@ -205,8 +203,6 @@ def tagAccuracySentence(corCorpus, commonDictionary):
             correct += 1
 
     return (correct/total)
-
-
 
 def countWords(corCorpus):
 
