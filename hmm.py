@@ -84,7 +84,6 @@ def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):
             dev, test = sliced[0], sliced[1]
 
             print('Training time', time.perf_counter()-startTime)
-            #print('Training time = %d seconds' % (time.perf_counter()-startTime))
             print('Corpus` size: %d sentences in DEV and %d sentences in TEST. ' % (len(dev),len(test)))
             startTime = time.perf_counter()
             itAccuracy = trainTest(dev, test, tagList, f)

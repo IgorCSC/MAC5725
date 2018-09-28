@@ -176,6 +176,38 @@ def tagAccuracy(corCorpus, commonDictionary):
 
     return (correct/total)
 
+
+def tagAccuracySentence(corCorpus, commonDictionary):
+    '''tag sentences with commonest tag. Calculate the percentage of correct tagged sentences.
+    '''
+
+    correct, total = 0,0
+
+    for line in corCorpus:
+
+        total += 1
+        correctTagging = True
+
+        sentence, correctTags = '', []
+        wordlist = line.split()
+        for w in wordlist:
+            if w[0] != '⛬':
+                sentence += w+' '
+            else:
+                correctTags.append(w)
+
+        tagged = maxTag(sentence, commonDictionary) #calculate the tags
+
+        for w in range(0, len(tagged)):       #count correct guesses
+            if correctTags[w] != tagged[w]:
+                correctTagging = False
+        if correctTagging:
+            correct += 1
+
+    return (correct/total)
+
+
+
 def countWords(corCorpus):
 
     wordic, size = dict(), 0
@@ -232,4 +264,11 @@ def findProblems(corCorpus):
 '''testes'''
 if __name__ == '__main__':
 
-    pass
+    corpus = open('cleanCorpus.txt', 'r').readlines()
+    common = likelyTag(corpus)
+
+    cutCorpus(corpus)
+
+    print(tagAccuracySentence(corpus, common))
+
+    print(len(corpus))
