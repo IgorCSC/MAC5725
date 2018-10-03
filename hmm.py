@@ -71,6 +71,8 @@ def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):
         f == algorithm to be tested. HMM or common (most likely tag)
         '''
 
+        logFile = open('nfoldLog.txt', 'w')
+
         theStart = time.perf_counter() #timer to track the entire nfold
 
         totalAccuracy = 0
@@ -80,19 +82,33 @@ def nfoldValidation(corCorpus, tagList, n, p, f='HMM'):
             startTime = time.perf_counter()
             print('\niteration %d ' % (i+1))
 
+            logFile.write('\n')
+            logFile.write('\niteration %d ' % (i+1))
+
             sliced = sliceCorpus(corCorpus, p)
             dev, test = sliced[0], sliced[1]
 
             print('Training time', time.perf_counter()-startTime)
             print('Corpus` size: %d sentences in DEV and %d sentences in TEST. ' % (len(dev),len(test)))
+
+            logFile.write('Training time '+ str(time.perf_counter()-startTime))
+            logFile.write('Corpus` size: %d sentences in DEV and %d sentences in TEST. ' % (len(dev),len(test)))
+
             startTime = time.perf_counter()
             itAccuracy = trainTest(dev, test, tagList, f)
             totalAccuracy += itAccuracy
             print('Evaluation time =', time.perf_counter()-startTime)
             print('Iteration accuracy:', itAccuracy)
 
+            logFile.write('Evaluation time =' +str( time.perf_counter()-startTime))
+            logFile.write('Iteration accuracy: '+str( itAccuracy))
+
+
         print('\nTotal time = {0} minutes'.format((time.perf_counter()-theStart)/60))
 
+        logFile.write('\n')
+        logFile.write('\nTotal time = {0} minutes'.format((time.perf_counter()-theStart)/60))
+        logFile.write('\nTotal accuracy = '+str(totalAccuracy/n))
 
         return (totalAccuracy/n)
 

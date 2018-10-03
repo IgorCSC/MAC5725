@@ -68,6 +68,43 @@ def numTag(corCorpus):
                 total += 1
     return total
 
+def countUniqueWords(corCorpus):
+    '''return a dictionary with words as keys and no of
+    occurence as values
+    print number of unique words
+    five most common words
+    number of hapax'''
+
+    words, five, hapax, totalW = {}, {}, 0, 0
+
+    for line in corCorpus:
+        for word in line.split()[::2]:
+            totalW +=1
+            if word in words:
+                words[word] += 1
+            else:
+                words[word] = 1
+
+    for i in range(5):
+        key   = max(words, key=words.get)
+        value = words[key]
+        five[key] = value
+        words[key]= 0
+
+    print('\nmost common words:')
+    for word in five: #restore and print
+        words[word] = five[word]
+        print(word,' : ', five[word])
+
+    for word in words:
+        if words[word] == 1:
+            hapax      += 1
+
+    print('Number of unique words: ', len(words))
+    print('Number of hapax: ', hapax)
+    print('Number of tokens: ', totalW)
+    return words
+
 def counTag(corCorpus):
     '''count no of  occurence for each tag.
     Output into a txt file, named by the user.
@@ -92,6 +129,33 @@ def counTag(corCorpus):
         newFile.write(' : '+str(noTag[tag]))
         newFile.write('\n')
     newFile.close()
+
+def countTagWords(corCorpus):
+    '''count number of tags per word (i.e. some word appeared under 2 distinct tags)
+    '''
+    wordDict, noOcurrences = dict(), [0,0,0,0,0,0,0,0,0,0,0]
+
+    for line in corCorpus:
+        words = line.split()
+
+        for n in range(0,len(words),2):
+            if n+1 < len(words):
+                if words[n] in wordDict:
+                    if words[n+1] in wordDict[words[n]]:
+                        wordDict[words[n]][words[n+1]] += 1
+                    else:
+                        wordDict[words[n]][words[n+1]] = 1
+                else:
+                    wordDict[words[n]] = {words[n+1] : 1}
+
+    for word in wordDict:
+        if len(wordDict[word])-1>6: #catch strange errors
+            print(len(wordDict[word])-1,wordDict[word])
+        else:
+            noOcurrences[len(wordDict[word])-1] += 1
+
+    print(noOcurrences)
+
 
 def likelyTag(corCorpus):
     '''generate a dictionary [words] ==> [likely tag].
@@ -261,10 +325,12 @@ def findProblems(corCorpus):
 if __name__ == '__main__':
 
     corpus = open('cleanCorpus.txt', 'r').readlines()
-    common = likelyTag(corpus)
-
-    cutCorpus(corpus)
-
-    print(tagAccuracySentence(corpus, common))
-
-    print(len(corpus))
+    #common = likelyTag(corpus)
+    #cutCorpus(corpus)
+    #print(tagAccuracySentence(corpus, common))
+    countTagWords(corpus)
+    #wordFreq = open('wordFrequencePrePro', 'wb')
+    #words = countUniqueWords(corpus)
+    #pickle.dump(words, wordFreq)
+    #orderedWords = sorted(words.items(), key=lambda x: x[1])
+    #occurence =
