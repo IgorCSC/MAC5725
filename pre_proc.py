@@ -181,16 +181,18 @@ def likelyTag(corCorpus):
     return (wordDict)
 
 
-def cutCorpus(corCorpus, n=10000):
+def cutCorpus(corCorpus, n=1):
     '''cut the corpus into a small file for testing stuff.
     saves it into a file named smallCorpus.
     '''
 
     newCorpus = open('smallCorpus.txt', 'w')
 
-    for i in range(n):
-        newCorpus.write(corCorpus[i])
+    for line in corCorpus:
+        if random.randint(0,100) < n:
+            newCorpus.write(line)
 
+    #print('lenght = ', len(newCorpus))
     newCorpus.close()
 
 
@@ -287,6 +289,17 @@ def countWords(corCorpus):
     print(size)
     pickle.dump(wordic, wordFreq)
 
+def countSentenceLenght(corpus):
+    '''extract sentence lenght
+    '''
+    totalLenght, noSentences = 0, len(corpus)
+
+    for sentence in corpus:
+        totalLenght += len(sentence.split())/2
+
+    return totalLenght/noSentences
+
+
 def noEmptylines(corCorpus):
     new_corpus = open(input('Nome do novo arquivo: '), 'w')
     noEmptylines = 0
@@ -324,11 +337,11 @@ def findProblems(corCorpus):
 '''testes'''
 if __name__ == '__main__':
 
-    corpus = open('cleanCorpus.txt', 'r').readlines()
-    #common = likelyTag(corpus)
-    #cutCorpus(corpus)
-    #print(tagAccuracySentence(corpus, common))
-    countTagWords(corpus)
+    corpus = open('smallCorpus.txt', 'r').readlines()
+    common = likelyTag(corpus)
+    #cutCorpus(corpus, 10)
+    print(tagAccuracySentence(corpus, common))
+    #print(countSentenceLenght(corpus))
     #wordFreq = open('wordFrequencePrePro', 'wb')
     #words = countUniqueWords(corpus)
     #pickle.dump(words, wordFreq)

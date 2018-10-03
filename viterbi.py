@@ -265,18 +265,15 @@ if __name__ == '__main__':
     for t in tagsCrude:
         tags.append(t.strip())
 
-    corpus = open('mediumStar.txt', 'r').readlines()
+    corpus = open('smallCorpus.txt', 'r').readlines()
 
     pairs  = twoFreq(corpus, tags)
     words =  wordFreq(corpus, tags)
 
-
-
-    s = '" ⛬PONT Kika ⛬PROP " ⛬PONT , ⛬PONT de ⛬PRP Almodóvar ⛬PROP , ⛬PONT " ⛬PONT O=Sonho=Azul ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET chinês ⛬N Tian=Zhuangzhuang ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT A=Fraternidade=É=Vermelha ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Krzystof=Kieslowski ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Amateur ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET americano ⛬N Hal=Hartley ⛬PROP , ⛬PONT com ⛬PRP Isabelle=Huppert ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Tempo=de=Viver ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET chinês ⛬N Zhang=Yimou ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Leni=Riefenstahl:=A=Deusa=Imperfeita ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET alemão ⛬N Ray=Mueller ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Xeque-Mate ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Jim ⛬PROP McBride ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT 32=Variações=Sobre=Glenn=Gould ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET canadense ⛬ADJ François=Girard ⛬PROP ) ⛬PONT , ⛬PONT o ⛬DET hilariante ⛬ADJ " ⛬PONT Mamãe=É=de=Morte ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET americano ⛬N John=Waters ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT A=Rainha=Margot ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET francês ⛬N Patrice=Chéreau ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Kabloonak ⛬PROP " ⛬PONT ( ⛬PONT ficção ⛬N sobre ⛬PRP as ⛬DET filmagens ⛬N de ⛬PRP o ⛬DET clássico ⛬ADJ documentário ⛬N de ⛬PRP Robert=Flaherty ⛬PROP , ⛬PONT " ⛬PONT Nanook,=o=Esquimó ⛬PROP " ⛬PONT , ⛬PONT dirigida ⛬V por ⛬PRP o ⛬DET francês ⛬N Claude=Massot ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Comer=Beber=Viver ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Ang ⛬PROP " ⛬PONT O=Banquete=de=Casamento=Lee ⛬PROP " ⛬PONT ) ⛬PONT , ⛬PONT " ⛬PONT A=Bronx=Tale ⛬PROP " ⛬PONT ( ⛬PONT primeiro ⛬ADJ filme ⛬N dirigido ⛬V por ⛬PRP Robert=De=Niro ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Barriga=de=Aluguel ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP a ⛬DET húngara ⛬N Marta=Meszaros ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Tigrero ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET finlandês ⛬N Mika=Kaurismaki ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT Prince=of=Jutland ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET dinamarquês ⛬N Gabriel=Axel ⛬PROP ) ⛬PONT , ⛬PONT " ⛬PONT The=Adventures=of=Priscilla ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP Stephen=Elliot ⛬PROP ) ⛬PONT e ⛬KC " ⛬PONT Kosh=ba=Kosh ⛬PROP " ⛬PONT ( ⛬PONT de ⛬PRP o ⛬DET tadjique ⛬N B.=Khudoynazarov ⛬PROP ) ⛬PONT . ⛬PONT '
-
-
-    unt, tagged = untagSentence(s)
-    print(unt.split(),'\n', tagged)
-
     #print(viterbi(unt, tags, pairs, words))
-    print(HMMaccuracy(corpus, tags, pairs, words))
+    total = 0
+    for i in range(10):
+        print('iteration ',i)
+        total += HMMaccuracySentence(corpus, tags, pairs, words)
+    print('\n')
+    print(total/10)
