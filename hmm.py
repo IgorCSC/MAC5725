@@ -55,7 +55,8 @@ def trainTest(dev, test, tagList, f, commondic='nenhum'):
 
     if   f == 'HMM':
         pairs  = vit.twoFreq(dev, tagList)
-        words =  vit.wordFreq(dev+test, tagList) #train word emission in all words to avoid unseen vocab.
+        #words = vit.wordFreq(dev, tagList)
+        words =  vit.wordFreqSmoothed(dev+test, dev, tagList) #train word emission in all words to avoid unseen vocab.
         return (vit.HMMaccuracy(test, tagList, pairs, words))
     elif f == 'common':
         common = pp.likelyTag(dev)

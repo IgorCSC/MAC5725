@@ -19,8 +19,6 @@ def twoFreq(corCorpus, allTags):
         for l in allTags:
             allPairs.append(t+'_'+l)
 
-
-
     for pair in allPairs:                   #create entry for a particular pair
         freqTable[pair] = dict()
         for tag in allTags:
@@ -100,6 +98,52 @@ def wordFreq(corCorpus, tagList):
             tagtoWord[tag][word] = tagtoWord[tag][word]/total
 
     return (tagtoWord)
+
+def wordFreqSmoothed(allCorpus, corCorpus, tagList):
+    '''generates a dictionary with P(word|tag) probabilities
+    Laplacian smoothing over the vocabulary w/ 0.1
+    '''
+
+    tagtoWord = dict()
+    for tag in tagList:
+        tagtoWord[tag] = {}
+
+    allWords = []               #routine generates a list with all words
+    for line in allCorpus:
+        for word in line.split():
+            if word[0] != '⛬':
+                 allWords.append(word)
+
+    for tag in tagtoWord:
+        if tag != '⛬DET' and tag != '⛬PRP':
+            for word in allWords:
+                tagtoWord[tag][word] = 0.01
+
+    regex_tagword = '[^⛬]+\s⛬[A-Z]+'
+
+    for sentence in corCorpus: #split sentence into strings with word+tag
+        tagwords = re.findall(regex_tagword, sentence)
+
+        for t in tagwords: #split string with word+tag into list [word, tag]
+            if len(t.split()) == 2:
+                word, tag = t.split()[0], t.split()[1][1:]
+                if tag in tagtoWord: ### so para testes. Depois tirar quando relimpar o corpus.
+                    if word in tagtoWord[tag]:
+                        tagtoWord[tag][word] += 1
+                    else:
+                        tagtoWord[tag][word]  = 1
+
+    '''Convert to probabilities'''
+    for tag in tagList:
+        total = 0
+        for word in tagtoWord[tag]:
+            total += tagtoWord[tag][word]
+
+        for word in tagtoWord[tag]:
+            tagtoWord[tag][word] = tagtoWord[tag][word]/total
+
+    return (tagtoWord)
+
 
 def tagSentence(splitSentence, tagList):
     '''tag a sentence with a given ordered list of tags
